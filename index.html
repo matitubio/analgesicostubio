@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Analgésicos</title>
+    <style>
+        * {
+            box-sizing: border-box; /* Evita que paddings rompan el layout */
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .cliente-input, .buscador-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px; /* Espacio entre inputs */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-height: 44px; /* Touch-friendly para móviles */
+        }
+        .buscador-input {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>'); /* Icono de lupa simple */
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            padding-left: 35px; /* Espacio para el icono */
+        }
+        .productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            background: #fafafa;
+            transition: opacity 0.3s ease; /* Suave fade al filtrar */
+        }
+        .card.hidden {
+            display: none; /* Oculta cards que no coincidan */
+        }
+        .card h3 {
+            margin: 0 0 10px;
+            color: #555;
+            font-size: 14px; /* Ajustado para más productos */
+        }
+        .card .precio {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .card select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-height: 40px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .btn-enviar {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        .btn-enviar:hover {
+            background: #218838;
+        }
+
+        /* Media Queries para Responsive */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            /* Tablets: 2 columnas */
+            .productos {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .container {
+                max-width: 600px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* evita desborde horizontal */
+        background-color: #f4f4f4;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 5px;
+        margin: 0;
+        border-radius: 8px;
+        box-shadow: none;
+    }
+
+    .productos {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(100px, 1fr)); /* 3 columnas siempre */
+        gap: 5px; /* menor espacio */
+        justify-content: center;
+    }
+
+    .card {
+        padding: 6px;
+        border-radius: 6px;
+        font-size: 12px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+    }
+
+    .card h3 {
+        font-size: 10px;
+        margin: 0 0 4px;
+        white-space: nowrap; /* evita salto de línea */
+        overflow: hidden;
+        text-overflow: ellipsis; /* agrega "..." si es muy largo */
+    }
+
+    .card .precio {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .card select {
+        padding: 4px;
+        font-size: 12px;
+        min-height: 32px;
+    }
+
+    .cliente-input, .buscador-input {
+        font-size: 14px;
+        padding: 10px;
+        min-height: 42px;
+        margin-bottom: 10px;
+    }
+
+    .buscador-input {
+        padding-left: 34px;
+        background-size: 14px;
+    }
+
+    .btn-enviar {
+        padding: 10px;
+        font-size: 14px;
+        min-height: 42px;
+    }
+
+    h1 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+}
+
+
+        @media (max-width: 480px) {
+            /* Celulares muy pequeños: Ajustes extra */
+            .productos {
+                gap: 8px;
+            }
+            .card {
+                padding: 10px;
+            }
+            .card h3 {
+                font-size: 12px;
+                margin: 0 0 6px;
+            }
+            .card .precio {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            .card select {
+                padding: 5px;
+                font-size: 14px;
+                min-height: 40px;
+            }
+            .buscador-input {
+                background-size: 18px 18px; /* Icono más pequeño en ultra-móvil */
+                background-position: 12px center;
+                padding-left: 42px;
+            }
+        }
+
+        .boton-pdf {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px auto;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.boton-pdf:hover {
+    background-color: #45a049;
+}
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Analgésicos</h1>
+        
+        <input type="text" id="cliente" class="cliente-input" placeholder="Ingrese el nombre del cliente" required>
+        
+        <input type="text" id="buscador" class="buscador-input" placeholder="Buscar producto (ej: Actron, Sertal, Tafirol)...">
+        
+        <div class="productos" id="productos-container">
+            <!-- Las cards se generarán aquí dinámicamente con JS -->
+        </div>
+
+        <button class="btn-enviar" onclick="generarFactura()">Enviar</button>
+        <button id="descargarPDF" class="boton-pdf">📄 Descargar lista de precios</button>
+
+    </div>
+
+    <script>
+        // Array de productos (tus 60 productos)
+        const productos = [
+            { nombre: "Actron 600", precio: 8200 },
+            { nombre: "Actron 400", precio: 3400 },
+            { nombre: "Alikal", precio: 900 },
+            { nombre: "Alikal Naranja", precio: 900 },
+            { nombre: "Amoxidal", precio: 3000 },
+            { nombre: "Amoxicilina", precio: 1500 },
+            { nombre: "Almaximo", precio: 2500 },
+            { nombre: "Aspirineta", precio: 1000 },
+            { nombre: "Azitromicina", precio: 2100 },
+            { nombre: "Bayaspirina", precio: 2200 },
+            { nombre: "Buscapina", precio: 8200 }, 
+            { nombre: "Buscapina Comp", precio: 6600  },
+            { nombre: "Buscapina Fem", precio: 3600  },
+            { nombre: "Biletan Forte", precio: 6500 },
+            { nombre: "Cafiaspirina", precio: 2500 },
+            { nombre: "Cafiaspirina Plus", precio: 3300 },
+            { nombre: "CaramelosC/Antibioticos", precio: 3300 },
+            { nombre: "Dexalergin", precio: 12800 },
+            { nombre: "Diclofenac", precio: 1200 },
+            { nombre: "DiclocFlex", precio: 1500 },
+            { nombre: "DiclocB12", precio: 3400 },
+            { nombre: "Dorixina", precio: 2500 },
+            { nombre: "Ibu 600", precio: 1200 },
+            { nombre: "Ibuevanol Rap.Acc", precio: 2700 },
+            { nombre: "Ibuevanol Plus", precio: 3000 },
+            { nombre: "Ibuevanol Forte", precio: 3400 },
+            { nombre: "Ibuevanol Max", precio: 4200 },
+            { nombre: "Keterolac Sub.", precio: 1200 },
+            { nombre: "Keterolac", precio: 1200 },
+            { nombre: "Laxante", precio: 5000 },
+            { nombre: "Loratadina", precio: 1000 },
+            { nombre: "Loperamida", precio: 1000 },
+            { nombre: "Mejoralito", precio: 3200 },
+            { nombre: "Migral", precio: 5100 },
+            { nombre: "Mylanta", precio: 3800 },
+            { nombre: "Novalagina", precio: 6000 },
+            { nombre: "Omeprazol", precio: 1300 },
+            { nombre: "Pastilla De Carbon", precio: 1500 },
+            { nombre: "Ponstil", precio: 2100 },
+            { nombre: "Quraplus", precio: 4500 },
+            { nombre: "Refrianex", precio: 4600 },
+            { nombre: "Next CB", precio: 3500 },
+            { nombre: "Next Comprimidos", precio: 3800 },
+            { nombre: "Sertal Perla", precio: 5400 },
+            { nombre: "Sertal Compuesto", precio: 7900 },
+            { nombre: "Sertal CompuestoOFERTA", precio: 6700 },
+            { nombre: "Fabogesic 600", precio: 3100 },
+            { nombre: "Geniol", precio: 1500 },
+            { nombre: "Tafirol 1g", precio: 2100 },
+            { nombre: "Tafirol 500mg", precio: 2100 },
+            { nombre: "Tafirol Plus", precio: 3000 },
+            { nombre: "Tafirol Resaca", precio: 4400 },
+            { nombre: "Tafirol Duo", precio: 4200 },
+            { nombre: "Tafirolito", precio: 3600 },
+            { nombre: "TeRolfita", precio: 800 },
+            { nombre: "Te Vick", precio: 2800 },
+            { nombre: "Te BayaC", precio: 1500 },
+            { nombre: "Te VENT3", precio: 1300 },
+            { nombre: "Uvasal", precio: 500 },
+            { nombre: "Ovulol", precio: 2000 },
+            { nombre: "Ibu Pediatrico", precio: 2600 },
+            { nombre: "Curitas", precio: 1500 },
+            { nombre: "Curitas Kids", precio: 1200 },
+            { nombre: "Enc.CANDELAx25", precio: 9000 },
+            { nombre: "Enc.Sharkx25", precio: 7500 },
+            { nombre: "Pres.PRIME", precio: 4100 },
+            { nombre: "Pres.MAXX", precio: 1700 },
+            { nombre: "Sedal Sobres", precio: 7300 },
+            { nombre: "Pantene Sobres", precio: 5600 },
+            { nombre: "Gillette x20", precio: 21000 },
+            { nombre: "Gillette x28", precio: 29000 },          
+            { nombre: "Kolynos", precio: 2000 },
+            { nombre: "Odol", precio: 2400 },
+            { nombre: "Colgate", precio: 2500 },
+            { nombre: "Cartabellax3", precio: 1600 },
+            { nombre: "Felpita x4", precio: 1800 },            
+            { nombre: "Bombuchas", precio: 1800 },
+            { nombre: "Pañuelo Elite x6", precio: 1900 },
+            { nombre: "Honey Mujer 5g", precio: 2000 },
+            { nombre: "Honey Hombre 15g", precio: 3500 },
+            { nombre: "Candy Men/Women", precio: 3500 },
+            { nombre: "Elfbar", precio: 21000 },
+            { nombre: "Buscapina8", precio: 8000 }
+        
+        ];
+
+        // Función para normalizar nombre para ID (minúsculas, sin espacios -> guiones)
+        function normalizarNombre(nombre) {
+            return nombre.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        }
+
+        let contadorPersonalizados = 0;
+        // Generar cards dinámicamente al cargar la página
+        function generarCards() {
+            const container = document.getElementById('productos-container');
+            container.innerHTML = ''; // Limpiar si hay algo
+
+            productos.forEach(producto => {
+                const idSelect = `cantidad-${normalizarNombre(producto.nombre)}`;
+                const dataProducto = normalizarNombre(producto.nombre);
+                const precioFormateado = producto.precio.toLocaleString(); // Ej: 6,500
+
+                const cardHTML = `
+                    <div class="card" data-producto="${dataProducto}">
+                        <h3>${producto.nombre}</h3>
+                        <div class="precio">$${precioFormateado}</div>
+                        <select id="${idSelect}">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="20">20</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                        </select>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+             // Cards para productos personalizados
+
+function agregarProductoPersonalizado() {
+    contadorPersonalizados++;
+
+    const numero = contadorPersonalizados;
+
+    const cardPersonalizado = `
+        <div class="card card-personalizado" id="card-personalizado-${numero}">
+            <h3>Producto personalizado ${numero}</h3>
+
+            <input
+                type="text"
+                id="productoPersonalizadoNombre-${numero}"
+                placeholder="Nombre del producto"
+                style="width:100%; padding:8px; border:1px solid #ddd; border-radius:5px; font-size:14px; margin-bottom:8px;"
+            >
+
+            <input
+                type="number"
+                id="productoPersonalizadoPrecio-${numero}"
+                placeholder="Precio"
+                min="0"
+                style="width:100%; padding:8px; border:1px solid #ddd; border-radius:5px; font-size:14px; margin-bottom:8px;"
+            >
+
+            <select id="cantidad-producto-personalizado-${numero}">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="20">20</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="30">30</option>
+            </select>
+        </div>
+    `;
+
+    document.getElementById('productos-container').insertAdjacentHTML('beforeend', cardPersonalizado);
+}
+
+// Crear la primera card personalizada
+agregarProductoPersonalizado();
+
+// Botón para agregar otra
+const botonAgregar = document.createElement('button');
+botonAgregar.type = 'button';
+botonAgregar.textContent = '＋ Agregar otro producto';
+botonAgregar.style.cssText = `
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+`;
+
+botonAgregar.addEventListener('click', agregarProductoPersonalizado);
+
+document.getElementById('productos-container').appendChild(botonAgregar);
+        
+        }
+
+        // Llamar a generarCards al cargar la página
+        window.addEventListener('DOMContentLoaded', generarCards);
+
+        // Función para el filtro de búsqueda
+        function filtrarProductos() {
+            const termino = document.getElementById('buscador').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                const nombreProducto = card.querySelector('h3').textContent.toLowerCase();
+                const dataProducto = card.getAttribute('data-producto').toLowerCase();
+
+                if (termino === '' || nombreProducto.includes(termino) || dataProducto.includes(termino)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Escuchar cambios en el input de búsqueda
+        document.getElementById('buscador').addEventListener('input', filtrarProductos);
+
+        // ---------- botón "X" para limpiar búsqueda (robusto y autocontenible) ----------
+(function() {
+  // Asegurarnos de que el DOM esté listo (por si se pega antes)
+  function setupClearButton() {
+    const input = document.getElementById('buscador');
+    if (!input) return; // seguridad
+
+    // Buscar un clear existente, si no existe lo creamos
+    let clear = document.getElementById('clearSearch');
+    if (!clear) {
+      clear = document.createElement('span');
+      clear.id = 'clearSearch';
+      clear.textContent = '×';
+      // estilos inline para no tocar CSS global (puedes mover a tu CSS si querés)
+      Object.assign(clear.style, {
+        position: 'absolute',
+        right: '8px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        cursor: 'pointer',
+        fontWeight: '700',
+        color: '#666',
+        fontSize: '18px',
+        display: 'none',
+        userSelect: 'none',
+        zIndex: 5,
+        padding: '2px'
+      });
+
+      // Aseguramos que el input esté dentro de un contenedor pos:relative
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.width = input.style.width || '100%';
+
+      // Reemplazamos input por wrapper -> wrapper contiene input y clear
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);    // lo mueve dentro del wrapper
+      wrapper.appendChild(clear);    // agrega la X al lado
+    } else {
+      // Si existe, asegurarnos que esté dentro del mismo parent que el input
+      const parent = input.parentElement;
+      if (clear.parentElement !== parent) {
+        // mover clear junto al input dentro de un wrapper si hace falta
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.width = input.style.width || '100%';
+        parent.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+        wrapper.appendChild(clear);
+      }
+    }
+
+    // Mostrar/ocultar la X según el contenido del input
+    function toggleClear() {
+      clear.style.display = input.value && input.value.trim().length > 0 ? 'block' : 'none';
+    }
+
+    // Conectamos con tu función de filtrado ya existente
+    // (la linea que ya pusiste: document.getElementById('buscador').addEventListener('input', filtrarProductos); )
+    // Pero también queremos controlar la X visualmente.
+    input.addEventListener('input', toggleClear);
+
+    // Al hacer click en la X: limpiar, volver a filtrar y enfocar
+    clear.addEventListener('click', function(e) {
+      e.preventDefault();
+      input.value = '';
+      toggleClear();
+      // Llamamos a la función de filtrado directamente para restaurar la lista
+      if (typeof filtrarProductos === 'function') {
+        filtrarProductos();
+      } else {
+        // Fallback: disparar evento input
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      input.focus();
+    });
+
+    // Inicializar visibilidad al cargar
+    toggleClear();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupClearButton);
+  } else {
+    setupClearButton();
+  }
+})();
+
+
+        // Función para generar factura (adaptada para productos dinámicos)
+        function generarFactura() {
+            const nombreCliente = document.getElementById('cliente').value.trim();
+            if (!nombreCliente) {
+                alert('Por favor, ingrese el nombre del cliente.');
+                return;
+            }
+
+            // Preparar compra: iterar sobre el array y obtener cantidades de selects
+            const compra = [];
+            productos.forEach(producto => {
+                const idSelect = `cantidad-${normalizarNombre(producto.nombre)}`;
+                const select = document.getElementById(idSelect);
+                if (select) {
+                    const cantidad = parseInt(select.value);
+                    if (cantidad > 0) {
+                        compra.push({
+                            id: normalizarNombre(producto.nombre),
+                            nombre: producto.nombre,
+                            precio: producto.precio,
+                            cantidad: cantidad
+                        });
+                    }
+                }
+            });
+
+              // Agregar todos los productos personalizados
+            for (let i = 1; i <= contadorPersonalizados; i++) {
+                const nombrePersonalizado = document.getElementById(`productoPersonalizadoNombre-${i}`).value.trim();
+                const precioPersonalizado = document.getElementById(`productoPersonalizadoPrecio-${i}`).value;
+                const cantidadPersonalizada = parseInt(document.getElementById(`cantidad-producto-personalizado-${i}`).value);
+
+                const hayDatosPersonalizados =
+                    nombrePersonalizado !== '' ||
+                    precioPersonalizado !== '' ||
+                    cantidadPersonalizada > 0;
+
+                if (hayDatosPersonalizados) {
+                    if (
+                        nombrePersonalizado === '' ||
+                        precioPersonalizado === '' ||
+                        isNaN(parseFloat(precioPersonalizado)) ||
+                        parseFloat(precioPersonalizado) < 0 ||
+                        cantidadPersonalizada <= 0
+                    ) {
+                        alert(`Complete nombre, precio y cantidad del producto personalizado ${i}.`);
+                        return;
+                    }
+
+                    compra.push({
+                        id: `producto-personalizado-${i}`,
+                        nombre: nombrePersonalizado,
+                        precio: parseFloat(precioPersonalizado),
+                        cantidad: cantidadPersonalizada
+                    });
+                }
+            }
+
+            if (compra.length === 0) {
+                alert('Por favor, seleccione al menos un producto.');
+                return;
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem('compra', JSON.stringify({
+                cliente: nombreCliente,
+                items: compra
+            }));
+
+            // Redirigir a factura
+            window.location.href = 'factura.html';
+        }
+
+   // --- Descargar lista de precios en PDF (formato tabla) ---
+document.getElementById('descargarPDF').addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Título
+    doc.setFontSize(20);
+    doc.text('Lista de Precios', 14, 20);
+
+    // Fecha actual
+    const fecha = new Date().toLocaleDateString('es-AR');
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${fecha}`, 150, 20);
+
+    // Encabezados de tabla
+    const startY = 30;
+    doc.setFontSize(15);
+    doc.text('Producto', 14, startY);
+    doc.text('Precio ($)', 160, startY, { align: 'right' });
+
+    // Línea divisoria
+    doc.line(10, startY + 3, 200, startY + 3);
+
+    // Dibujar filas tipo tabla
+    let y = startY + 10;
+    doc.setFontSize(14);
+    productos.forEach((p, i) => {
+        doc.text(p.nombre, 14, y);
+        doc.text(p.precio.toString(), 160, y, { align: 'right' });
+
+        // Línea separadora entre filas
+        doc.line(10, y + 3, 200, y + 3);
+
+        y += 10;
+        if (y > 270) { // Si llega al final de la hoja
+            doc.addPage();
+            y = 20;
+        }
+    });
+
+    // Guardar PDF
+    doc.save(`Lista_de_Precios_${fecha}.pdf`);
+});
+
+
+    </script>
+</body>
+</html>
